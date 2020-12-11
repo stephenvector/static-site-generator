@@ -1,0 +1,38 @@
+{
+  "name": "@stephenvector/static-site-generator",
+  "license": "MIT",
+  "scripts": {
+    "start": "concurrently \"npm:start-*\"",
+    "start-tsc": "tsc --watch",
+    "start-nodemon": "nodemon  --ignore ./src/ build/index.js dev --inputDir=./ --siteName=Foldable.dev",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.9",
+    "@types/fs-extra": "^9.0.5",
+    "@types/html-minifier": "^4.0.0",
+    "@types/marked": "^1.2.0",
+    "@types/node": "^14.14.8",
+    "@types/ws": "^7.4.0",
+    "@types/yargs": "^15.0.11",
+    "concurrently": "^5.3.0",
+    "nodemon": "^2.0.6",
+    "prettier": "^2.1.2",
+    "typescript": "^4.0.5"
+  },
+  "prettier": {},
+  "dependencies": {
+    "chokidar": "^3.4.3",
+    "express": "^4.17.1",
+    "fs-extra": "^9.0.1",
+    "gray-matter": "^4.0.2",
+    "highlight.js": "^10.4.1",
+    "html-minifier": "^4.0.0",
+    "marked": "^1.2.5",
+    "ws": "^7.4.0",
+    "yargs": "^16.2.0"
+  },
+  "bin": {
+    "stephenvector-static-site-generator": "bin/stephenvector-static-site-generator"
+  }
+}
