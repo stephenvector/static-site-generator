@@ -202,21 +202,14 @@ function develop() {
       processWebpageFile(markdownFilePath.toString());
       writeSiteToDisk();
       wsServer.emit("message");
-      console.log(wsServer.clients);
-      wsServer.clients.forEach((client) => {
-        wsServer.emit("message");
-        client.send("message");
-        client.emit("message");
-      });
+      // wsServer.clients.forEach((client) => {
+      //   wsServer.emit("message");
+      //   // client.send("message");
+      //   // client.emit("message");
+      // });
     })
     .on("ready", () => {
-      console.log("Ready");
       writeSiteToDisk();
-      // wsServer.listeners("message").entries((i) => {
-      //   // i.("message")
-      //   console.log(i);
-      // });
-      console.log("OK");
     });
 }
 
@@ -312,7 +305,9 @@ const argv = yargs(process.argv.slice(2))
  * ENTRYPOINT
  */
 
-const { inputDir, outputDir, siteName } = argv;
+const { siteName } = argv;
+const outputDir = path.resolve(process.cwd(), argv.outputDir);
+const inputDir = path.resolve(process.cwd(), argv.inputDir);
 const command = argv._[0] as typeof MODE_DEV | typeof MODE_BUILD;
 if (command === "dev") {
   develop();

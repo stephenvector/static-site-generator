@@ -1,6 +1,8 @@
 {
   "name": "@stephenvector/static-site-generator",
+  "version": "0.3.1",
   "license": "MIT",
+  "main": "./index.js",
   "scripts": {
     "start": "concurrently \"npm:start-*\"",
     "start-tsc": "tsc --watch",
@@ -33,6 +35,10 @@
     "yargs": "^16.2.0"
   },
   "bin": {
-    "stephenvector-static-site-generator": "bin/stephenvector-static-site-generator"
-  }
+    "stephenvector-ssg": "index.js"
+  },
+  "files": [
+    "build/index.js",
+    "index.js"
+  ]
 }
