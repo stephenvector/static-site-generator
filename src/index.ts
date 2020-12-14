@@ -196,7 +196,9 @@ function develop() {
   const app = express();
   app.use(express.static("public"));
   const wsServer = new ws.Server({ noServer: true });
-  const server = app.listen(3000);
+  const server = app.listen(3000, () => {
+    console.log("Dev server listening at http://localhost:3000");
+  });
 
   server.on("upgrade", (request, socket, head) => {
     wsServer.handleUpgrade(request, socket, head, (socket) => {
