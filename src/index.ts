@@ -30,19 +30,37 @@ const webpages: { [k: string]: WebPage } = {};
 
 const MODE_DEV = "dev";
 const MODE_BUILD = "build";
+
+const CONTENT_TAG_REGEX = /{{CONTENT}}/g;
+const SITE_NAME_TAG_REGEX = /{{SITE_NAME}}/g;
+const GOOGLE_ANALYTICS_SCRIPT_TAG_REGEX = /{{GOOGLE_ANALYTICS_SCRIPT}}/g;
+const GOOGLE_ANALYTICS_ID_TAG_REGEX = /{{GOOGLE_ANALYTICS_ID}}/g;
+
 const CONTENT_TAG = "{{CONTENT}}";
 const SITE_NAME_TAG = "{{SITE_NAME}}";
+const GOOGLE_ANALYTICS_SCRIPT_TAG = "{{GOOGLE_ANALYTICS_SCRIPT}}";
+const GOOGLE_ANALYTICS_ID_TAG = "{{GOOGLE_ANALYTICS_ID}}";
+
 const CLIENT_WEBSOCKET_SCRIPT = `<script type="text/javascript">
 const socket = new WebSocket("ws://localhost:3000/")
 socket.addEventListener('message', function (event) {
   console.log(event)
   window.location.reload();
 });</script>`;
+
+const GOOGLE_ANALYTICS_SCRIPT = `<script async src="https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID_TAG}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', '${GOOGLE_ANALYTICS_ID_TAG}');
+</script>`
 export const HTML_TEMPLATE = `<!doctype html>
 <html>
 <head>
 <meta charset="utf-8" />
-<title></title>
+<title>${SITE_NAME_TAG}</title>
 <style type="text/css">
 *, *:before, *:after {
   box-sizing: inherit;
@@ -165,13 +183,14 @@ pre {
   background: #f2f2f2;
 }
 </style>
+${GOOGLE_ANALYTICS_SCRIPT_TAG}
 </head>
 <body>
   <div class="wrapper">
     <header>
-      <a href="/">{{SITE_NAME}}</a>
+      <a href="/">${SITE_NAME_TAG}</a>
     </header>
-    <section>{{CONTENT}}</section>
+    <section>${CONTENT_TAG}</section>
   </div>
 </body>
 </html>
@@ -228,12 +247,20 @@ function getHomepage() {
   Object.entries(webpages).forEach(([_filePath, page]) => {
     renderedLinks += `<h2><a href="/${page.slug}/">${page.title}</a></h2>`;
   });
-  return HTML_TEMPLATE.replace(CONTENT_TAG, `${renderedLinks}`)
+  return HTML_TEMPLATE.replace(CONTENT_TAG_REGEX, `${renderedLinks}`)
     .replace(
       "</body>",
       `${command === "dev" ? CLIENT_WEBSOCKET_SCRIPT : ""}</body>`
     )
-    .replace(SITE_NAME_TAG, siteName);
+    .replace(SITE_NAME_TAG_REGEX, siteName)
+    .replace(
+      GOOGLE_ANALYTICS_SCRIPT_TAG_REGEX,
+      `${(command === "build" && typeof googleAnalyticsId === "string") ? GOOGLE_ANALYTICS_SCRIPT.replace(GOOGLE_ANALYTICS_ID_TAG_REGEX, googleAnalyticsId) : ""}`
+    )
+    .replace(
+      "</head>",
+      `${command === "dev" ? CLIENT_WEBSOCKET_SCRIPT : ""}</head>`
+    )
 }
 
 function processWebpageFile(filePath: string) {
@@ -250,11 +277,15 @@ function processWebpageFile(filePath: string) {
     CONTENT_TAG,
     `<article><h1>${m.data.title}</h1>${documentHTML}</article>`
   )
-    .replace(SITE_NAME_TAG, siteName as string)
+    .replace(SITE_NAME_TAG_REGEX, siteName as string)
+    .replace(
+      GOOGLE_ANALYTICS_SCRIPT_TAG_REGEX,
+      `${(command === "build" && typeof googleAnalyticsId === "string") ? GOOGLE_ANALYTICS_SCRIPT.replace(GOOGLE_ANALYTICS_ID_TAG_REGEX, googleAnalyticsId) : ""}`
+    )
     .replace(
       "</head>",
       `${command === "dev" ? CLIENT_WEBSOCKET_SCRIPT : ""}</head>`
-    );
+    )
 
   if (typeof m.data.slug === "string" && typeof m.data.title === "string") {
     webpages[m.data.slug] = {
@@ -268,7 +299,10 @@ function processWebpageFile(filePath: string) {
 function writeSiteToDisk() {
   fs.ensureDirSync(outputDir);
 
-  fs.writeFileSync(path.resolve(outputDir, "index.html"), getHomepage());
+  fs.writeFileSync(path.resolve(outputDir, "index.html"), minify(getHomepage(), {
+    minifyCSS: true,
+    collapseWhitespace: true,
+  }));
 
   Object.values(webpages).forEach((webpage) => {
     fs.ensureDirSync(path.resolve(outputDir, webpage.slug));
@@ -309,13 +343,16 @@ const argv = yargs(process.argv.slice(2))
   .option("siteName", {
     type: "string",
   })
-  .demandOption(["siteName"]).argv;
+  .option("googleAnalyticsId", {
+    type: "string"
+  })
+  .demandOption(["siteName", "googleAnalyticsId"]).argv;
 
 /**
  * ENTRYPOINT
  */
 
-const { siteName } = argv;
+const { siteName, googleAnalyticsId } = argv;
 const outputDir = path.resolve(process.cwd(), argv.outputDir);
 const inputDir = path.resolve(process.cwd(), argv.inputDir);
 const command = argv._[0] as typeof MODE_DEV | typeof MODE_BUILD;
