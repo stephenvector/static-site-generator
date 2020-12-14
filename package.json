@@ -7,7 +7,9 @@
     "start": "concurrently \"npm:start-*\"",
     "start-tsc": "tsc --watch",
     "start-nodemon": "nodemon  --ignore ./src/ build/index.js dev --inputDir=./ --siteName=Foldable.dev",
-    "build": "tsc"
+    "build": "tsc",
+    "predemo": "npm run build",
+    "demo": "node index.js dev --siteName=Demo --inputDir=./demo-docs"
   },
   "devDependencies": {
     "@types/express": "^4.17.9",
