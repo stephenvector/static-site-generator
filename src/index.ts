@@ -177,6 +177,7 @@ p {
   font-weight: bold;
 }
 pre {
+  overflow-x: auto;
   border-radius: 0.5rem;
   padding: 1rem;
   color: #333;
