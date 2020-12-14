@@ -60,28 +60,33 @@ body {
 .wrapper {
   max-width: 36rem;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.5rem;
+}
+.wrapper > header > a {
+  font-weight: bold;
 }
 a {
   text-decoration: none;
   color: inherit;
 }
 h1 {
-  font-size: 3rem;
-  margin: 2rem 0;
+  font-size: 2.5rem;
+  margin: 1.5rem 0;
+  letter-spacing: -0.03em;
   line-height: 0.95;
 }
 p {
-  line-height: 2;
+  margin: 1.5rem 0;
+  line-height: 1.5;
   font-size: 110%;
   font-family: Georgia, Cambria, "Times New Roman", Times, serif
 }
 .hljs {
   display: block;
   overflow-x: auto;
-  padding: 0.5em;
+  padding: 1rem;
   color: #333;
-  background: #fff;
+  background: #f2f2f2;
 }
 .hljs-comment,
 .hljs-quote {
@@ -152,6 +157,12 @@ p {
 }
 .hljs-strong {
   font-weight: bold;
+}
+pre {
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: #333;
+  background: #f2f2f2;
 }
 </style>
 </head>
