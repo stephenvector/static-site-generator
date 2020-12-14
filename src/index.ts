@@ -224,7 +224,7 @@ function develop() {
 function getHomepage() {
   let renderedLinks = ``;
   Object.entries(webpages).forEach(([_filePath, page]) => {
-    renderedLinks += `<p><a href="/${page.slug}/">${page.title}</a></p>`;
+    renderedLinks += `<h2><a href="/${page.slug}/">${page.title}</a></h2>`;
   });
   return HTML_TEMPLATE.replace(CONTENT_TAG, `${renderedLinks}`)
     .replace(
