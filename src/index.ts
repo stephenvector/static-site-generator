@@ -212,12 +212,9 @@ function develop() {
     .on("all", (event, markdownFilePath) => {
       processWebpageFile(markdownFilePath.toString());
       writeSiteToDisk();
-      wsServer.emit("message");
-      // wsServer.clients.forEach((client) => {
-      //   wsServer.emit("message");
-      //   // client.send("message");
-      //   // client.emit("message");
-      // });
+      wsServer.clients.forEach((client) => {
+        client.send("message");
+      });
     })
     .on("ready", () => {
       writeSiteToDisk();
