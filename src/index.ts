@@ -184,6 +184,7 @@ pre {
   background: #f2f2f2;
 }
 </style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 ${GOOGLE_ANALYTICS_SCRIPT_TAG}
 </head>
 <body>
