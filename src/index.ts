@@ -202,6 +202,24 @@ ${GOOGLE_ANALYTICS_SCRIPT_TAG}
  * FUNCTIONS
  */
 
+function getFlattenedObject(obj: object) {
+  return Object.entries(obj).reduce((acc, [k, v]) => {
+    const typeofValue = typeof v
+    
+    if (typeofValue === "object") {
+      const flattenedValueObject = getFlattenedObject(v);
+      Object.entries(flattenedValueObject).forEach(([a,b]) => {
+        acc['${k}.${a}'] = b
+      })
+    
+    } else {
+      acc[k] = v;
+    }
+    
+    return acc;
+  }, {})
+}
+
 function getMarkdownFileWatcher() {
   return chokidar
     .watch([`${inputDir}/**/*.md`], {
