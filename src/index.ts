@@ -9,6 +9,8 @@ import yargs from "yargs/yargs";
 import hljs from "highlight.js";
 import { minify } from "html-minifier";
 
+const styles = fs.readFileSync(path.resolve(__dirname, "index.css"));
+
 /**
  * TYPES
  */
@@ -55,134 +57,15 @@ const GOOGLE_ANALYTICS_SCRIPT = `<script async src="https://www.googletagmanager
   gtag('js', new Date());
 
   gtag('config', '${GOOGLE_ANALYTICS_ID_TAG}');
-</script>`
+</script>`;
+
 export const HTML_TEMPLATE = `<!doctype html>
 <html>
 <head>
 <meta charset="utf-8" />
 <title>${SITE_NAME_TAG}</title>
 <style type="text/css">
-*, *:before, *:after {
-  box-sizing: inherit;
-}
-html {
-  box-sizing: border-box;
-  font-size: 20px;
-}
-body {
-  padding: 0;
-  background: #fff;
-  color: #000;
-  font-family: sans-serif;
-}
-.wrapper {
-  max-width: 36rem;
-  margin: 0 auto;
-  padding: 1.5rem;
-}
-.wrapper > header > a {
-  font-weight: bold;
-}
-a {
-  text-decoration: none;
-  color: inherit;
-}
-h1 {
-  font-size: 2.5rem;
-  margin: 1.5rem 0;
-  letter-spacing: -0.03em;
-  line-height: 0.95;
-}
-p {
-  margin: 1.5rem 0;
-  line-height: 1.5;
-  font-size: 110%;
-  font-family: Georgia, Cambria, "Times New Roman", Times, serif
-}
-.hljs {
-  display: block;
-  overflow-x: auto;
-  padding: 1rem;
-  color: #333;
-  background: #f2f2f2;
-}
-.hljs-comment,
-.hljs-quote {
-  color: #999;
-  font-style: italic;
-}
-.hljs-keyword,
-.hljs-selector-tag,
-.hljs-subst {
-  color: #333;
-  font-weight: bold;
-}
-.hljs-number,
-.hljs-literal,
-.hljs-variable,
-.hljs-template-variable,
-.hljs-tag .hljs-attr {
-  color: #088;
-}
-.hljs-string,
-.hljs-doctag {
-  color: #d14;
-}
-.hljs-title,
-.hljs-section,
-.hljs-selector-id {
-  color: #900;
-  font-weight: bold;
-}
-.hljs-subst {
-  font-weight: normal;
-}
-.hljs-type,
-.hljs-class .hljs-title {
-  color: #458;
-  font-weight: bold;
-}
-.hljs-tag,
-.hljs-name,
-.hljs-attribute {
-  color: #000080;
-  font-weight: normal;
-}
-.hljs-regexp,
-.hljs-link {
-  color: #092;
-}
-.hljs-symbol,
-.hljs-bullet {
-  color: #907;
-}
-.hljs-built_in,
-.hljs-builtin-name {
-  color: #08b;
-}
-.hljs-meta {
-  color: #999;
-  font-weight: bold;
-}
-.hljs-deletion {
-  background: #fdd;
-}
-.hljs-addition {
-  background: #dfd;
-}
-.hljs-emphasis {
-  font-style: italic;
-}
-.hljs-strong {
-  font-weight: bold;
-}
-pre {
-  overflow-x: auto;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  color: #333;
-  background: #f2f2f2;
-}
+${styles.toString()}
 </style>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 ${GOOGLE_ANALYTICS_SCRIPT_TAG}
@@ -203,21 +86,20 @@ ${GOOGLE_ANALYTICS_SCRIPT_TAG}
  */
 
 function getFlattenedObject(obj: object) {
-  return Object.entries(obj).reduce((acc, [k, v]) => {
-    const typeofValue = typeof v
-    
+  return Object.entries(obj).reduce<{ [k: string]: any }>((acc, [k, v]) => {
+    const typeofValue = typeof v;
+
     if (typeofValue === "object") {
       const flattenedValueObject = getFlattenedObject(v);
-      Object.entries(flattenedValueObject).forEach(([a,b]) => {
-        acc['${k}.${a}'] = b
-      })
-    
+      Object.entries(flattenedValueObject).forEach(([a, b]) => {
+        acc["${k}.${a}"] = b;
+      });
     } else {
       acc[k] = v;
     }
-    
+
     return acc;
-  }, {})
+  }, {});
 }
 
 function getMarkdownFileWatcher() {
@@ -275,12 +157,19 @@ function getHomepage() {
     .replace(SITE_NAME_TAG_REGEX, siteName)
     .replace(
       GOOGLE_ANALYTICS_SCRIPT_TAG_REGEX,
-      `${(command === "build" && typeof googleAnalyticsId === "string") ? GOOGLE_ANALYTICS_SCRIPT.replace(GOOGLE_ANALYTICS_ID_TAG_REGEX, googleAnalyticsId) : ""}`
+      `${
+        command === "build" && typeof googleAnalyticsId === "string"
+          ? GOOGLE_ANALYTICS_SCRIPT.replace(
+              GOOGLE_ANALYTICS_ID_TAG_REGEX,
+              googleAnalyticsId
+            )
+          : ""
+      }`
     )
     .replace(
       "</head>",
       `${command === "dev" ? CLIENT_WEBSOCKET_SCRIPT : ""}</head>`
-    )
+    );
 }
 
 function processWebpageFile(filePath: string) {
@@ -300,12 +189,19 @@ function processWebpageFile(filePath: string) {
     .replace(SITE_NAME_TAG_REGEX, siteName as string)
     .replace(
       GOOGLE_ANALYTICS_SCRIPT_TAG_REGEX,
-      `${(command === "build" && typeof googleAnalyticsId === "string") ? GOOGLE_ANALYTICS_SCRIPT.replace(GOOGLE_ANALYTICS_ID_TAG_REGEX, googleAnalyticsId) : ""}`
+      `${
+        command === "build" && typeof googleAnalyticsId === "string"
+          ? GOOGLE_ANALYTICS_SCRIPT.replace(
+              GOOGLE_ANALYTICS_ID_TAG_REGEX,
+              googleAnalyticsId
+            )
+          : ""
+      }`
     )
     .replace(
       "</head>",
       `${command === "dev" ? CLIENT_WEBSOCKET_SCRIPT : ""}</head>`
-    )
+    );
 
   if (typeof m.data.slug === "string" && typeof m.data.title === "string") {
     webpages[m.data.slug] = {
@@ -319,10 +215,13 @@ function processWebpageFile(filePath: string) {
 function writeSiteToDisk() {
   fs.ensureDirSync(outputDir);
 
-  fs.writeFileSync(path.resolve(outputDir, "index.html"), minify(getHomepage(), {
-    minifyCSS: true,
-    collapseWhitespace: true,
-  }));
+  fs.writeFileSync(
+    path.resolve(outputDir, "index.html"),
+    minify(getHomepage(), {
+      minifyCSS: true,
+      collapseWhitespace: true,
+    })
+  );
 
   Object.values(webpages).forEach((webpage) => {
     fs.ensureDirSync(path.resolve(outputDir, webpage.slug));
@@ -364,7 +263,7 @@ const argv = yargs(process.argv.slice(2))
     type: "string",
   })
   .option("googleAnalyticsId", {
-    type: "string"
+    type: "string",
   })
   .demandOption(["siteName", "googleAnalyticsId"]).argv;
 
