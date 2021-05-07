@@ -55,7 +55,7 @@ const GOOGLE_ANALYTICS_SCRIPT = `<script async src="https://www.googletagmanager
   gtag('js', new Date());
 
   gtag('config', '${GOOGLE_ANALYTICS_ID_TAG}');
-</script>`
+</script>`;
 export const HTML_TEMPLATE = `<!doctype html>
 <html>
 <head>
@@ -204,20 +204,19 @@ ${GOOGLE_ANALYTICS_SCRIPT_TAG}
 
 function getFlattenedObject(obj: object) {
   return Object.entries(obj).reduce((acc, [k, v]) => {
-    const typeofValue = typeof v
-    
+    const typeofValue = typeof v;
+
     if (typeofValue === "object") {
       const flattenedValueObject = getFlattenedObject(v);
-      Object.entries(flattenedValueObject).forEach(([a,b]) => {
-        acc['${k}.${a}'] = b
-      })
-    
+      Object.entries(flattenedValueObject).forEach(([a, b]) => {
+        acc[`${k}.${a}`] = b;
+      });
     } else {
       acc[k] = v;
     }
-    
+
     return acc;
-  }, {})
+  }, {} as Record<string, any>);
 }
 
 function getMarkdownFileWatcher() {
@@ -275,12 +274,19 @@ function getHomepage() {
     .replace(SITE_NAME_TAG_REGEX, siteName)
     .replace(
       GOOGLE_ANALYTICS_SCRIPT_TAG_REGEX,
-      `${(command === "build" && typeof googleAnalyticsId === "string") ? GOOGLE_ANALYTICS_SCRIPT.replace(GOOGLE_ANALYTICS_ID_TAG_REGEX, googleAnalyticsId) : ""}`
+      `${
+        command === "build" && typeof googleAnalyticsId === "string"
+          ? GOOGLE_ANALYTICS_SCRIPT.replace(
+              GOOGLE_ANALYTICS_ID_TAG_REGEX,
+              googleAnalyticsId
+            )
+          : ""
+      }`
     )
     .replace(
       "</head>",
       `${command === "dev" ? CLIENT_WEBSOCKET_SCRIPT : ""}</head>`
-    )
+    );
 }
 
 function processWebpageFile(filePath: string) {
@@ -300,12 +306,19 @@ function processWebpageFile(filePath: string) {
     .replace(SITE_NAME_TAG_REGEX, siteName as string)
     .replace(
       GOOGLE_ANALYTICS_SCRIPT_TAG_REGEX,
-      `${(command === "build" && typeof googleAnalyticsId === "string") ? GOOGLE_ANALYTICS_SCRIPT.replace(GOOGLE_ANALYTICS_ID_TAG_REGEX, googleAnalyticsId) : ""}`
+      `${
+        command === "build" && typeof googleAnalyticsId === "string"
+          ? GOOGLE_ANALYTICS_SCRIPT.replace(
+              GOOGLE_ANALYTICS_ID_TAG_REGEX,
+              googleAnalyticsId
+            )
+          : ""
+      }`
     )
     .replace(
       "</head>",
       `${command === "dev" ? CLIENT_WEBSOCKET_SCRIPT : ""}</head>`
-    )
+    );
 
   if (typeof m.data.slug === "string" && typeof m.data.title === "string") {
     webpages[m.data.slug] = {
@@ -319,10 +332,13 @@ function processWebpageFile(filePath: string) {
 function writeSiteToDisk() {
   fs.ensureDirSync(outputDir);
 
-  fs.writeFileSync(path.resolve(outputDir, "index.html"), minify(getHomepage(), {
-    minifyCSS: true,
-    collapseWhitespace: true,
-  }));
+  fs.writeFileSync(
+    path.resolve(outputDir, "index.html"),
+    minify(getHomepage(), {
+      minifyCSS: true,
+      collapseWhitespace: true,
+    })
+  );
 
   Object.values(webpages).forEach((webpage) => {
     fs.ensureDirSync(path.resolve(outputDir, webpage.slug));
@@ -364,7 +380,7 @@ const argv = yargs(process.argv.slice(2))
     type: "string",
   })
   .option("googleAnalyticsId", {
-    type: "string"
+    type: "string",
   })
   .demandOption(["siteName", "googleAnalyticsId"]).argv;
 
