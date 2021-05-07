@@ -7,7 +7,10 @@ import matter from "gray-matter";
 import fs from "fs-extra";
 import yargs from "yargs/yargs";
 import hljs from "highlight.js";
+const githubCSS = require.resolve("highlight.js/styles/github.css");
 import { minify } from "html-minifier";
+
+console.log(githubCSS);
 
 /**
  * TYPES
